@@ -5,15 +5,21 @@ const getUsers = async (req, res) => {
         const users = await pool.query("SELECT * FROM users");
         return res.status(200).json(users.rows);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 const getUser = async (req, res) => {
     try {
         const user = await pool.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
-        return res.status(200).json(user.rows);
+        if (!user.rows.length) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json(user.rows[0]);
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        if (error instanceof NotFoundError) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 
