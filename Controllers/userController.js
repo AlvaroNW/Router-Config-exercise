@@ -27,14 +27,18 @@ const getUser = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
+    const {firstname, lastname, email} = req.body;
     try {
-        const {firstname, lastname, email} = req.body;
+        
         if(!firstname ||!lastname ||!email) {
             throw Error("Please fill all fields");
         }
         const newUser = await pool.query("INSERT INTO users(firstname, lastname, email) VALUES($1,$2,$3)", [firstname, lastname, email]);
         return res.status(201).json({ message: "User created successfully"})
     } catch (error) {
+        if(!firstname || !lastname || !email) {
+            return res.status(400).json({ message: "Please fill all fields" });
+        }
         return res.status(500).json({ message: "Internal server error" });
     }
 }
